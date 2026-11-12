@@ -1,0 +1,20 @@
+# runtime
+node_modules/
+dist/
+out/
+
+# local engine wiring: which player Lumen drives, and where it lives
+engine.config.json
+
+# user data and logs
+*.log
+settings.json
+history.json
+.vault/
+
+# editor / OS noise
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store

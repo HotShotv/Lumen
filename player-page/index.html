@@ -1,0 +1,76 @@
+<!doctype html>
+<!--
+  A page that holds YouTube's embedded player and nothing else, for the Lumen wallpaper.
+  Lumen frames this page (from a public https address) and talks to the player through
+  it: messages from the framing page go to the player, and the player's go back.
+  Address: index.html?v=<video id>&t=<start seconds>
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>Player</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #000;
+        overflow: hidden;
+      }
+      iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const query = new URLSearchParams(location.search);
+      const id = query.get("v") || "";
+      if (/^[a-zA-Z0-9_-]{11}$/.test(id)) {
+        const options = new URLSearchParams({
+          autoplay: "1",
+          mute: "1",
+          controls: "0",
+          disablekb: "1",
+          fs: "0",
+          rel: "0",
+          iv_load_policy: "3",
+          cc_load_policy: "0",
+          playsinline: "1",
+          loop: "1",
+          playlist: id,
+          enablejsapi: "1",
+          start: String(Math.max(0, Math.floor(Number(query.get("t")) || 0))),
+          origin: location.origin,
+        });
+        const player = document.createElement("iframe");
+        player.allow = "autoplay; encrypted-media";
+        player.src = `https://www.youtube.com/embed/${id}?${options}`;
+        document.body.append(player);
+
+        const PLAYER = "https://www.youtube.com";
+        player.addEventListener("load", () => {
+          player.contentWindow.postMessage(
+            JSON.stringify({ event: "listening", id: 1, channel: "widget" }),
+            PLAYER,
+          );
+        });
+        addEventListener("message", (event) => {
+          if (event.source === player.contentWindow && event.origin === PLAYER) {
+            // the player's reports (state, time, errors) go up to Lumen
+            if (parent !== window) parent.postMessage(event.data, "*");
+          } else if (event.source === parent && parent !== window && typeof event.data === "string") {
+            // Lumen's commands (play, pause, seek) go down to the player
+            player.contentWindow.postMessage(event.data, PLAYER);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

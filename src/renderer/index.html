@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: file: https:; media-src 'self' file: mediastream:; frame-src https:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'none'"
+    />
+    <title>Lumen</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="backdrop" aria-hidden="true">
+      <img id="backdrop-cover" alt="" hidden />
+      <img id="backdrop-image" alt="" hidden />
+      <video id="backdrop-video" loop muted autoplay playsinline hidden></video>
+      <iframe id="backdrop-clip" title="Music video" tabindex="-1" allow="autoplay; encrypted-media" hidden></iframe>
+      <div class="shade" id="backdrop-shade"></div>
+      <div class="vignette"></div>
+    </div>
+
+    <main id="scene">
+      <div id="clock" data-layout="clock" data-name="Clock">
+        <span id="clock-date"></span>
+        <span id="clock-time"></span>
+      </div>
+
+      <div id="stage">
+        <aside id="recent" data-layout="recent" data-name="Queue and playlists" hidden>
+          <header>
+            <button type="button" id="recent-back" class="back" aria-label="Back" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+            </button>
+            <span class="badge" id="recent-badge"></span>
+            <span class="titles">
+              <strong id="recent-title">Recently Played</strong>
+              <small id="recent-source">On this PC</small>
+            </span>
+          </header>
+          <div id="playlist-actions" hidden>
+            <button type="button" id="pl-play">Play</button>
+            <button type="button" id="pl-shuffle">Shuffle</button>
+          </div>
+          <div id="recent-list" data-section="queue"></div>
+          <div class="section-title" id="playlists-title" data-section="playlists" hidden>Playlists</div>
+          <div id="playlist-list" data-section="playlists"></div>
+          <div class="section-title" id="suggest-title" data-section="suggest" hidden>Suggested</div>
+          <div id="suggest-list" data-section="suggest"></div>
+        </aside>
+
+        <div id="center">
+          <div id="flow" data-layout="fan" data-name="Cover fan" hidden></div>
+          <div id="dots" data-layout="dots" data-name="Dots" hidden></div>
+        </div>
+      </div>
+
+      <section id="lyricmode" aria-label="Lyrics" hidden>
+        <button type="button" class="icon" id="lm-exit" aria-label="Close lyrics">
+          <svg viewBox="0 0 24 24" class="stroke" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+        </button>
+        <div id="lm-left" data-layout="lyricsLeft" data-name="Lyric mode: cover and controls">
+          <img id="lm-cover" alt="" />
+          <div id="lm-title"></div>
+          <div id="lm-artist"></div>
+          <span class="lm-track" id="lm-track"><span id="lm-progress"></span></span>
+          <div id="lm-times"><span id="lm-now">0:00</span><span id="lm-total">0:00</span></div>
+          <div id="lm-controls">
+            <button type="button" class="icon" id="lm-shuffle" aria-label="Shuffle" aria-pressed="false">
+              <svg viewBox="0 0 24 24" class="stroke" aria-hidden="true">
+                <path d="M3 7h3.5c2 0 3.2 1 4.3 2.6l2.4 4.8C14.3 16 15.5 17 17.5 17H21M21 17l-2.5-2.5M21 17l-2.5 2.5M3 17h3.5c1.4 0 2.4-.5 3.3-1.4M21 7h-3.5c-1.4 0-2.4.5-3.3 1.4M21 7l-2.5-2.5M21 7l-2.5 2.5" />
+              </svg>
+            </button>
+            <button type="button" class="icon" id="lm-previous" aria-label="Previous song">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2.4v14H6zM19 5.6v12.8a.6.6 0 0 1-.94.5L9.2 12.5a.6.6 0 0 1 0-1L18.06 5.1a.6.6 0 0 1 .94.5z" /></svg>
+            </button>
+            <button type="button" class="icon main" id="lm-toggle" aria-label="Play or pause">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path class="when-playing" d="M7 4.5h3.4v15H7zM13.6 4.5H17v15h-3.4z" />
+                <path class="when-paused" d="M8 4.6v14.8a.6.6 0 0 0 .92.5l11.4-7.4a.6.6 0 0 0 0-1L8.92 4.1A.6.6 0 0 0 8 4.6z" />
+              </svg>
+            </button>
+            <button type="button" class="icon" id="lm-next" aria-label="Next song">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.6 5H18v14h-2.4zM5 5.6v12.8a.6.6 0 0 0 .94.5l8.86-6.4a.6.6 0 0 0 0-1L5.94 5.1A.6.6 0 0 0 5 5.6z" /></svg>
+            </button>
+            <button type="button" class="icon" id="lm-repeat" aria-label="Repeat" aria-pressed="false">
+              <svg viewBox="0 0 24 24" class="stroke" aria-hidden="true">
+                <path d="M17 3.5 20 6.5l-3 3M4 11.5v-1a4 4 0 0 1 4-4h12M7 20.5l-3-3 3-3M20 12.5v1a4 4 0 0 1-4 4H4" />
+              </svg>
+            </button>
+          </div>
+          <div id="lm-volume">
+            <button type="button" class="icon" id="lm-mute" aria-label="Mute or unmute" aria-pressed="false">
+              <svg viewBox="0 0 24 24" class="stroke" aria-hidden="true">
+                <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" />
+                <path class="wave-1" d="M15.5 9.2a4 4 0 0 1 0 5.6" />
+                <path class="wave-2" d="M18 6.8a7.5 7.5 0 0 1 0 10.4" />
+                <path class="muted" d="M16 9.5l4.5 5M20.5 9.5l-4.5 5" />
+              </svg>
+            </button>
+            <input type="range" id="lm-volume-input" min="0" max="100" step="1" value="100" aria-label="Volume" />
+          </div>
+        </div>
+        <div id="lm-scroll" data-layout="lyrics" data-name="Lyric mode: lyrics"><div id="lm-lines"></div></div>
+      </section>
+
+      <div id="nowbar" data-layout="nowbar" data-name="Song and seek bar" hidden>
+        <img id="np-cover" alt="" />
+        <span class="np-meta">
+          <strong id="np-title"></strong>
+          <small id="np-subtitle"></small>
+          <span class="np-line">
+            <span class="np-track" id="np-track"><span id="np-progress"></span></span>
+            <span id="np-time"></span>
+          </span>
+        </span>
+      </div>
+
+      <div id="bar" data-layout="bar" data-name="Player bar" hidden>
+        <span class="dot"></span>
+        <button type="button" class="icon" id="btn-previous" aria-label="Previous">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2.4v14H6zM19 5.6v12.8a.6.6 0 0 1-.94.5L9.2 12.5a.6.6 0 0 1 0-1L18.06 5.1a.6.6 0 0 1 .94.5z" /></svg>
+        </button>
+        <button type="button" class="icon main" id="btn-toggle" aria-label="Play or pause">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path class="when-playing" d="M7 4.5h3.4v15H7zM13.6 4.5H17v15h-3.4z" />
+            <path class="when-paused" d="M8 4.6v14.8a.6.6 0 0 0 .92.5l11.4-7.4a.6.6 0 0 0 0-1L8.92 4.1A.6.6 0 0 0 8 4.6z" />
+          </svg>
+        </button>
+        <button type="button" class="icon" id="btn-next" aria-label="Next">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.6 5H18v14h-2.4zM5 5.6v12.8a.6.6 0 0 0 .94.5l8.86-6.4a.6.6 0 0 0 0-1L5.94 5.1A.6.6 0 0 0 5 5.6z" /></svg>
+        </button>
+
+        <img id="bar-cover" alt="" />
+        <span class="meta">
+          <strong id="bar-title"></strong>
+          <small id="bar-subtitle"></small>
+          <span class="track" id="bar-track"><span id="bar-progress"></span></span>
+        </span>
+        <span id="bar-time"></span>
+
+        <button type="button" class="icon engine-only" id="btn-like" aria-label="Like" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path class="heart" d="M12 20.3 4.6 13a4.9 4.9 0 0 1 0-7 4.9 4.9 0 0 1 6.9 0l.5.5.5-.5a4.9 4.9 0 0 1 6.9 0 4.9 4.9 0 0 1 0 7z" />
+          </svg>
+        </button>
+        <button type="button" class="icon engine-only" id="btn-shuffle" aria-label="Shuffle" aria-pressed="false">
+          <svg viewBox="0 0 24 24" class="stroke" aria-hidden="true">
+            <path d="M3 7h3.5c2 0 3.2 1 4.3 2.6l2.4 4.8C14.300 16 15.500 17 17.500 17H21M21 17l-2.500-2.500M21 17l-2.500 2.500M3 17h3.500c1.400 0 2.400-.500 3.300-1.400M21 7h-3.500c-1.400 0-2.400.500-3.300 1.400M21 7l-2.500-2.500M21 7l-2.500 2.500" />
+          </svg>
+        </button>
+        <button type="button" class="icon engine-only" id="btn-repeat" aria-label="Repeat" aria-pressed="false">
+          <svg viewBox="0 0 24 24" class="stroke" aria-hidden="true">
+            <path d="M17 3.500 20 6.500l-3 3M4 11.500v-1a4 4 0 0 1 4-4h12M7 20.500l-3-3 3-3M20 12.500v1a4 4 0 0 1-4 4H4" />
+            <path id="repeat-one" d="M12 10v4.500" hidden />
+          </svg>
+        </button>
+        <span class="volume engine-only" id="volume">
+          <button type="button" class="icon" id="btn-volume" aria-label="Mute or unmute" aria-pressed="false">
+            <svg viewBox="0 0 24 24" class="stroke" aria-hidden="true">
+              <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" />
+              <path class="wave-1" d="M15.5 9.2a4 4 0 0 1 0 5.6" />
+              <path class="wave-2" d="M18 6.8a7.5 7.5 0 0 1 0 10.4" />
+              <path class="muted" d="M16 9.5l4.5 5M20.5 9.5l-4.5 5" />
+            </svg>
+          </button>
+          <span class="vol-pop">
+            <span class="vol-pill">
+              <span class="vol-fill" id="volume-fill"></span>
+              <svg viewBox="0 0 24 24" class="vol-icon" aria-hidden="true">
+                <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" />
+                <path d="M15.5 9.2a4 4 0 0 1 0 5.6" class="arc" />
+                <path d="M18 6.8a7.5 7.5 0 0 1 0 10.4" class="arc" />
+              </svg>
+              <output id="volume-value" class="vol-percent">100</output>
+              <input type="range" id="volume-input" min="0" max="100" step="1" value="100" aria-label="Volume" />
+            </span>
+          </span>
+        </span>
+        <button type="button" class="icon engine-only" id="btn-search" aria-label="Search" aria-expanded="false">
+          <svg viewBox="0 0 24 24" class="stroke" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.500" /><path d="m16 16 4.500 4.500" />
+          </svg>
+        </button>
+        <button type="button" class="icon" id="btn-lyrics" aria-label="Lyrics" aria-pressed="false">
+          <svg viewBox="0 0 24 24" class="stroke" aria-hidden="true">
+            <path d="M5 4.5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-6l-4.2 3.3a.5.5 0 0 1-.8-.4v-2.9H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" />
+            <path d="M8 9h8M8 12.4h5" />
+          </svg>
+        </button>
+        <button type="button" class="icon" id="btn-settings" aria-label="Settings" aria-expanded="false">
+          <svg viewBox="0 0 24 24" class="stroke" aria-hidden="true">
+            <path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1" />
+            <circle cx="15" cy="7" r="2" /><circle cx="9" cy="12" r="2" /><circle cx="17" cy="17" r="2" />
+          </svg>
+        </button>
+      </div>
+    </main>
+
+    <section id="search" aria-label="Search" hidden>
+      <input id="search-input" type="text" placeholder="Search songs, or paste a Spotify playlist link" spellcheck="false" autocomplete="off" />
+      <div id="search-results"></div>
+      <small id="search-note">Type at least two letters.</small>
+    </section>
+
+    <section id="eq" data-layout="equalizer" data-name="Equalizer" aria-label="Equalizer" hidden>
+      <header>
+        <span class="eq-titles"><strong id="eq-title">Equalizer</strong><small id="eq-hint"></small></span>
+        <label class="eq-switch"><input type="checkbox" id="eq-enabled" /><span></span></label>
+      </header>
+      <nav id="eq-tabs"></nav>
+      <div id="eq-body"></div>
+      <div id="eq-bands"></div>
+    </section>
+
+    <section id="rename" aria-label="Rename playlist" hidden>
+      <input id="rename-input" type="text" maxlength="200" spellcheck="false" autocomplete="off" />
+      <small>Press Enter to rename, Esc to cancel.</small>
+    </section>
+
+    <div id="layout-bar" hidden>
+      <span id="layout-hint">Drag a part to move it, scroll over it to resize it, double-click it to reset it.</span>
+      <span id="layout-name"></span>
+      <button type="button" id="layout-rotate">Turn the bar</button>
+      <button type="button" id="layout-reset">Reset all</button>
+      <button type="button" id="layout-done">Done</button>
+    </div>
+
+    <div id="menu" role="menu" hidden></div>
+    <div id="toast" role="status" hidden></div>
+
+    <section id="panel" aria-label="Lumen settings" hidden>
+      <h2>Lumen</h2>
+
+      <label class="switch-row">
+        <span>Edge light</span>
+        <input type="checkbox" data-setting="edgeLight" />
+      </label>
+      <label class="slider-row">
+        <span>Light thickness <output data-for="thickness"></output></span>
+        <input type="range" min="40" max="200" step="5" data-setting="thickness" data-unit="%" />
+      </label>
+
+      <label class="switch-row">
+        <span>Lyrics<small id="lyrics-note">Looks songs up on lrclib.net</small></span>
+        <input type="checkbox" data-setting="lyrics" />
+      </label>
+      <label class="switch-row">
+        <span>Queue / recently played list</span>
+        <input type="checkbox" data-setting="recentList" />
+      </label>
+
+      <div class="group">
+        <span class="label">Wallpaper</span>
+        <div class="buttons">
+          <button type="button" id="panel-choose">Add images or videos…</button>
+          <button type="button" id="panel-cover">Use cover art</button>
+        </div>
+        <div id="vault"></div>
+        <small class="note" id="vault-note">Backgrounds you add are kept here. Click one to use it; the × forgets it (the file stays on your PC).</small>
+      </div>
+      <label class="switch-row">
+        <span>Equalizer<small>A separate widget; needs a linked player</small></span>
+        <input type="checkbox" data-setting="equalizer" />
+      </label>
+      <label class="switch-row">
+        <span>Music video<small>Plays the song's video as the background when it has one</small></span>
+        <input type="checkbox" data-setting="musicVideo" />
+      </label>
+      <div class="group" hidden>
+        <div class="buttons">
+        </div>
+      </div>
+      <label class="slider-row">
+        <span>Dimming <output data-for="dim"></output></span>
+        <input type="range" min="0" max="85" step="1" data-setting="dim" data-unit="%" />
+      </label>
+      <label class="slider-row">
+        <span>Blur <output data-for="blur"></output></span>
+        <input type="range" min="0" max="100" step="1" data-setting="blur" data-unit="px" />
+      </label>
+
+      <div class="group">
+        <span class="label">Player bar</span>
+        <label class="switch-row">
+          <span>Upright, on the right</span>
+          <input type="checkbox" id="panel-vertical" />
+        </label>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" data-bar-button="previous" /><span>Previous</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="toggle" /><span>Play / pause</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="next" /><span>Next</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="cover" /><span>Cover</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="info" /><span>Title and seek line</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="time" /><span>Time</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="like" /><span>Like</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="shuffle" /><span>Shuffle</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="repeat" /><span>Repeat</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="volume" /><span>Volume</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="search" /><span>Search</span></label>
+          <label class="chip"><input type="checkbox" data-bar-button="lyrics" /><span>Lyrics</span></label>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="buttons">
+          <button type="button" id="panel-layout">Edit layout…</button>
+          <button type="button" id="panel-behind">Move behind desktop icons</button>
+          <button type="button" id="panel-quit" class="danger">Quit Lumen</button>
+        </div>
+        <small class="note">Behind the icons it can't be clicked. Switch back from Lumen's icon by the clock.</small>
+      </div>
+    </section>
+
+    <canvas id="edge" aria-hidden="true"></canvas>
+
+    <script src="color.js"></script>
+    <script src="beat.js"></script>
+    <script src="edge.js"></script>
+    <script src="lyrics.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

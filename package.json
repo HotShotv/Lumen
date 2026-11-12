@@ -1,0 +1,12 @@
+{
+  "name": "lumen",
+  "version": "0.2.0",
+  "private": true,
+  "description": "A Windows desktop wallpaper that is also a music player: edge light on the beat, cover fan, queue, clock, synced lyrics.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": ["electron", "wallpaper", "music-player", "windows", "lyrics"],
+  "license": "MIT"
+}

@@ -1,0 +1,2156 @@
+:root {
+  /* set from the cover art by app.js */
+  --glow: 255, 138, 48;
+  --deep: 214, 84, 20;
+  --hot: 255, 226, 170;
+  --taskbar: 64px;
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  color: #fff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+  user-select: none;
+  cursor: default;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---- backdrop ---- */
+
+#backdrop,
+#backdrop > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#backdrop-image,
+#backdrop-video {
+  object-fit: cover;
+}
+
+#backdrop-cover {
+  object-fit: cover;
+  transform: scale(1.3);
+  filter: blur(70px) saturate(1.5);
+}
+
+.shade {
+  /* darkness comes from the Dimming setting, set by app.js */
+  background: rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s;
+}
+
+.vignette {
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+#edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---- layout ---- */
+
+#scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4.2vh 34px calc(var(--taskbar) + 26px);
+}
+
+#stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: clamp(110px, 13vw, 220px);
+}
+
+#center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.4vh;
+}
+
+/* ---- clock ---- */
+
+#clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: rgba(var(--glow), 0.92);
+  transition: color 1.2s ease;
+}
+
+#clock-date {
+  font-size: 1.5vh;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+#clock-time {
+  /* Bahnschrift ships with Windows and has a condensed width; the scale makes it taller and thinner still */
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-stretch: 75%;
+  font-weight: 300;
+  font-size: 19vh;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transform: scale(0.72, 1.32);
+  transform-origin: center top;
+  margin-bottom: 5vh;
+  text-shadow: 0 0 34px rgba(var(--glow), 0.35);
+}
+
+/* ---- recently played ---- */
+
+#recent {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: clamp(190px, 17vw, 280px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transform: translateY(-50%) perspective(900px) rotateY(24deg);
+  transform-origin: left center;
+  -webkit-mask-image: linear-gradient(to bottom, black 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 84%, transparent 100%);
+}
+
+#recent header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px;
+  margin-bottom: 7px;
+}
+
+#recent .badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgb(var(--hot)), rgb(var(--deep)));
+  flex: none;
+}
+
+#recent .titles {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+#recent strong {
+  font-size: 14.5px;
+  line-height: 18px;
+}
+
+#recent small {
+  font-size: 11px;
+  line-height: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 11px;
+}
+
+.row.active {
+  background: rgba(var(--glow), 0.22);
+  box-shadow: inset 0 0 0 1px rgba(var(--glow), 0.35);
+  backdrop-filter: blur(24px);
+}
+
+.row img,
+.row .blank {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.1);
+  flex: none;
+}
+
+.row .text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.row .title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.row.active .title {
+  color: rgb(var(--hot));
+}
+
+.row .artist {
+  font-size: 11px;
+  line-height: 14px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.row .title,
+.row .artist,
+#recent strong,
+#recent small {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- cover flow ---- */
+
+#flow {
+  position: relative;
+  width: min(760px, 56vw);
+  height: clamp(250px, 40vh, 430px);
+  perspective: 1300px;
+}
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(160px, 27vh, 300px);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 9px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(40, 40, 46, 0.5);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  filter: brightness(0.82);
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.6s ease,
+    filter 0.6s ease;
+}
+
+/* the fan can be scrolled with the wheel and dragged sideways */
+body.clickable #flow {
+  cursor: grab;
+  touch-action: none;
+}
+
+body.clickable #flow.dragging {
+  cursor: grabbing;
+}
+
+#flow.dragging .card {
+  transition: none;
+}
+
+.card.front {
+  filter: none;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(var(--glow), 0.25);
+}
+
+.card img,
+.card .blank {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 11px;
+  object-fit: cover;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.card .text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 4px 3px;
+}
+
+.card .title {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card .artist {
+  width: 100%;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card.front .title {
+  font-size: 15.5px;
+}
+
+.card.front .artist {
+  font-size: 12.5px;
+}
+
+#dots {
+  display: flex;
+  gap: 7px;
+}
+
+#dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+#dots span.on {
+  width: 14px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* ---- lyric mode ---- */
+
+#lyricmode {
+  position: absolute;
+  inset: 0 0 var(--taskbar) 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(48px, 7vw, 150px);
+  padding: 0 4vw;
+  font-family: Montserrat, "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+}
+
+#lm-exit {
+  position: absolute;
+  top: 3vh;
+  left: 26px;
+}
+
+#lm-exit svg {
+  width: 24px;
+  height: 24px;
+}
+
+#lm-left {
+  width: clamp(250px, 44vh, 460px);
+  display: flex;
+  flex-direction: column;
+  flex: none;
+}
+
+#lm-cover {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+
+#lm-title {
+  margin-top: 3vh;
+  font-size: clamp(18px, 2.6vh, 26px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+#lm-artist {
+  margin-top: 3px;
+  font-size: clamp(13px, 1.8vh, 17px);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+#lm-title,
+#lm-artist {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* the seek line; a taller strip than the line itself so it is easy to grab */
+.lm-track {
+  position: relative;
+  height: 20px;
+  margin-top: 2.2vh;
+  touch-action: none;
+}
+
+.lm-track::before,
+#lm-progress {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  height: 4px;
+  border-radius: 99px;
+}
+
+.lm-track::before {
+  right: 0;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+#lm-progress {
+  width: 0;
+  background: #fff;
+}
+
+#lm-progress::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  border-radius: 99px;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+body.clickable .lm-track {
+  cursor: pointer;
+}
+
+body.clickable .lm-track:hover #lm-progress::after,
+.lm-track.scrubbing #lm-progress::after {
+  opacity: 1;
+}
+
+#lm-times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+#lm-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2vh;
+  padding: 0 4%;
+}
+
+#lyricmode .icon {
+  width: 44px;
+  height: 44px;
+}
+
+#lyricmode .icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+#lm-toggle {
+  width: 62px;
+  height: 62px;
+}
+
+#lm-toggle svg {
+  width: 36px;
+  height: 36px;
+}
+
+/* pause bars while playing, a triangle while paused */
+#lyricmode .when-paused,
+#lyricmode.paused .when-playing {
+  display: none;
+}
+
+#lyricmode.paused .when-paused {
+  display: inline;
+}
+
+#lm-volume {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 1.2vh 0 0 4%;
+  width: 62%;
+}
+
+#lm-volume .icon {
+  width: 34px;
+  height: 34px;
+}
+
+#lm-volume .icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+#lm-mute .wave-1,
+#lm-mute .wave-2 {
+  opacity: 1;
+}
+
+#lm-mute .muted {
+  display: none;
+}
+
+#lm-mute[aria-pressed="true"] .wave-1,
+#lm-mute[aria-pressed="true"] .wave-2 {
+  display: none;
+}
+
+#lm-mute[aria-pressed="true"] .muted {
+  display: inline;
+}
+
+#lm-volume-input {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  --fill: 100%;
+}
+
+#lm-volume-input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 99px;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.9) var(--fill),
+    rgba(255, 255, 255, 0.22) var(--fill)
+  );
+}
+
+#lm-volume-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+  border-radius: 99px;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* every line of the song, scrolled so the sung one stays in the middle */
+#lm-scroll {
+  position: relative;
+  width: clamp(380px, 40vw, 720px);
+  height: min(82vh, 860px);
+  overflow: hidden;
+  flex: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%);
+}
+
+#lm-lines {
+  position: relative;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lyric-line {
+  --d: 4;
+  padding: 1.1vh 0;
+  font-size: clamp(24px, 4.1vh, 46px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #fff;
+  opacity: calc(0.56 - var(--d) * 0.06);
+  transition: opacity 0.45s;
+  text-shadow: 0 3px 20px rgba(0, 0, 0, 0.45);
+}
+
+.lyric-line.active {
+  opacity: 1;
+}
+
+.lyric-line.note {
+  letter-spacing: 0.1em;
+}
+
+body.clickable .lyric-line {
+  cursor: pointer;
+}
+
+/* each word fills with light from the left as it is sung; --p is set every frame */
+.lyric-line .word {
+  --p: -14;
+  color: transparent;
+  background: linear-gradient(
+    90deg,
+    #fff calc(var(--p) * 1%),
+    rgba(255, 255, 255, 0.4) calc(var(--p) * 1% + 14%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: none;
+}
+
+/* ---- player bar ---- */
+
+#bar {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: min(680px, calc(100% - 48px));
+  height: 54px;
+  padding: 0 12px 0 16px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(24, 24, 28, 0.58);
+  backdrop-filter: blur(40px) saturate(1.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+}
+
+#bar .dot {
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  border-radius: 99px;
+  box-shadow: inset 0 0 0 2.5px rgb(var(--glow));
+  flex: none;
+}
+
+#bar.paused .dot,
+#bar.idle .dot {
+  opacity: 0.5;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 99px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  flex: none;
+  transition:
+    background-color 0.15s,
+    color 0.15s,
+    transform 0.15s;
+}
+
+.icon svg {
+  width: 19px;
+  height: 19px;
+  fill: currentColor;
+}
+
+.icon svg.stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon.main {
+  color: #fff;
+}
+
+.icon[aria-pressed="true"],
+.icon[aria-expanded="true"] {
+  color: rgb(var(--hot));
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* pause bars while playing, a triangle while paused */
+#bar .when-paused,
+#bar.paused .when-playing,
+#bar.idle .when-playing {
+  display: none;
+}
+
+#bar.paused .when-paused,
+#bar.idle .when-paused {
+  display: inline;
+}
+
+#bar.idle #btn-previous,
+#bar.idle #btn-toggle,
+#bar.idle #btn-next {
+  opacity: 0.35;
+}
+
+#bar-cover {
+  width: 34px;
+  height: 34px;
+  margin-left: 8px;
+  border-radius: 7px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.1);
+  flex: none;
+}
+
+#bar .meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  margin: 0 10px;
+}
+
+#bar-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 17px;
+}
+
+#bar-subtitle {
+  font-size: 11.5px;
+  line-height: 15px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+#bar-title,
+#bar-subtitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* a taller hit area than the 2px line it shows */
+#bar .track {
+  position: relative;
+  height: 18px;
+  margin: 0 0 -8px;
+  touch-action: none;
+}
+
+#bar .track::before,
+#bar-progress {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  height: 2px;
+  border-radius: 99px;
+}
+
+#bar .track::before {
+  right: 0;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+#bar-progress {
+  width: 0;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+#bar-time {
+  margin-right: 6px;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.55);
+  flex: none;
+}
+
+/* ---- clickable mode ---- */
+
+body.clickable .icon,
+body.clickable #bar .track,
+body.clickable .link,
+body.clickable #panel button,
+body.clickable #panel input {
+  cursor: pointer;
+}
+
+body.clickable .icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+body.clickable .icon:active {
+  transform: scale(0.92);
+}
+
+body.clickable #bar .track:hover::before,
+body.clickable #bar .track:hover #bar-progress,
+#bar .track.scrubbing::before,
+#bar .track.scrubbing #bar-progress {
+  top: 7px;
+  height: 4px;
+}
+
+/* a handle on the line while it is hovered or dragged */
+#bar-progress::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 99px;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+body.clickable #bar .track:hover #bar-progress::after,
+#bar .track.scrubbing #bar-progress::after {
+  opacity: 1;
+}
+
+body.clickable .row.link:not(.active):hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+body.clickable .card.link:hover {
+  filter: brightness(1.08);
+}
+
+/* behind the icons nothing can be clicked, so don't offer the buttons that need it */
+body:not(.clickable) #btn-settings,
+body:not(.clickable) #btn-lyrics {
+  display: none;
+}
+
+/* ---- settings panel ---- */
+
+#panel {
+  position: absolute;
+  z-index: 4;
+  left: calc(50% + min(340px, 50% - 24px));
+  bottom: calc(var(--taskbar) + 26px + 54px + 12px);
+  transform: translateX(-100%);
+  width: 340px;
+  max-height: calc(100% - var(--taskbar) - 140px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(24, 24, 28, 0.72);
+  backdrop-filter: blur(40px) saturate(1.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  font-size: 13.5px;
+}
+
+#panel h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+#panel small {
+  display: block;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.switch-row input {
+  appearance: none;
+  position: relative;
+  width: 38px;
+  height: 22px;
+  margin: 0;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.18);
+  flex: none;
+  transition: background-color 0.2s;
+}
+
+.switch-row input::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 99px;
+  background: #fff;
+  transition: transform 0.2s;
+}
+
+.switch-row input:checked {
+  background: rgb(var(--glow));
+}
+
+.switch-row input:checked::after {
+  transform: translateX(16px);
+}
+
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slider-row span {
+  display: flex;
+  justify-content: space-between;
+}
+
+.slider-row output {
+  color: rgba(255, 255, 255, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.slider-row input {
+  width: 100%;
+  margin: 0;
+  accent-color: rgb(var(--glow));
+}
+
+#panel .group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#panel .label {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+}
+
+#panel .buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#panel button {
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 12.5px;
+}
+
+#panel button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+#panel button:disabled {
+  opacity: 0.4;
+}
+
+#panel button.danger:hover {
+  background: rgba(255, 77, 77, 0.55);
+}
+
+/* ---- engine (player linked) ---- */
+
+/* these need the linked player: hidden when Lumen is only following another app */
+body:not(.engine) .engine-only {
+  display: none;
+}
+
+.icon .heart {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linejoin: round;
+}
+
+.icon[aria-pressed="true"] .heart {
+  fill: currentColor;
+}
+
+/* ---- search ---- */
+
+#search {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: calc(var(--taskbar) + 26px + 54px + 12px);
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 48px));
+  max-height: min(520px, calc(100% - var(--taskbar) - 160px));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(24, 24, 28, 0.72);
+  backdrop-filter: blur(40px) saturate(1.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+#search-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  user-select: text;
+}
+
+#search-input:focus {
+  border-color: rgba(var(--glow), 0.7);
+}
+
+#search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+#search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+#search-results .row {
+  flex: none;
+}
+
+#search-results .text {
+  flex: 1;
+}
+
+#search-results .duration {
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.5);
+  flex: none;
+}
+
+#search-note {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#search-results .count {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.5);
+  flex: none;
+}
+
+#search-note:empty {
+  display: none;
+}
+
+/* ---- hover labels on the bar's buttons ---- */
+
+.icon[data-tip] {
+  position: relative;
+}
+
+.icon[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 14px);
+  transform: translate(-50%, 4px);
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(18, 18, 22, 0.92);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 550;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.12s,
+    transform 0.12s;
+}
+
+body.clickable .icon[data-tip]:hover::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 0.35s;
+}
+
+/* ---- library sections, opened playlist, menus ---- */
+
+#recent-list,
+#playlist-list,
+#suggest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#recent .section-title {
+  margin: 10px 0 3px;
+  padding: 0 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#recent .back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  flex: none;
+}
+
+#recent .back svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.clickable #recent .back {
+  cursor: pointer;
+}
+
+body.clickable #recent .back:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+#playlist-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 8px 6px;
+}
+
+#playlist-actions button {
+  flex: 1;
+  height: 30px;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+#playlist-actions button:first-child {
+  background: rgba(var(--glow), 0.35);
+}
+
+body.clickable #playlist-actions button {
+  cursor: pointer;
+}
+
+body.clickable #playlist-actions button:hover {
+  filter: brightness(1.25);
+}
+
+#recent .empty-note {
+  padding: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#menu {
+  position: fixed;
+  z-index: 9;
+  min-width: 200px;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(24, 24, 28, 0.88);
+  backdrop-filter: blur(40px) saturate(1.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+#menu .menu-title {
+  padding: 6px 12px 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: normal;
+}
+
+#menu button {
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+#menu button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+#menu button.danger {
+  color: #ff7b7b;
+}
+
+#toast {
+  position: absolute;
+  z-index: 9;
+  left: 50%;
+  bottom: calc(var(--taskbar) + 26px + 54px + 18px);
+  transform: translateX(-50%);
+  max-width: min(520px, calc(100% - 48px));
+  padding: 9px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(24, 24, 28, 0.9);
+  font-size: 12.5px;
+}
+
+#rename {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: calc(var(--taskbar) + 26px + 54px + 12px);
+  transform: translateX(-50%);
+  width: min(460px, calc(100% - 48px));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(24, 24, 28, 0.78);
+  backdrop-filter: blur(40px) saturate(1.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+#rename-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  user-select: text;
+}
+
+#rename-input:focus {
+  border-color: rgba(var(--glow), 0.7);
+}
+
+#rename small {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ---- volume ---- */
+
+.volume {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+#btn-volume .wave-1,
+#btn-volume .wave-2 {
+  opacity: 1;
+}
+
+#btn-volume .muted {
+  display: none;
+}
+
+#btn-volume[aria-pressed="true"] .wave-1,
+#btn-volume[aria-pressed="true"] .wave-2 {
+  display: none;
+}
+
+#btn-volume[aria-pressed="true"] .muted {
+  display: inline;
+}
+
+/* the slider stands above the button; the padding under it keeps the hover unbroken */
+.vol-pop {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  padding-bottom: 12px;
+  display: none;
+}
+
+body.clickable .volume:hover .vol-pop,
+.volume.dragging .vol-pop {
+  display: block;
+}
+
+/* a tall dark pill that fills with light from the bottom, like the system volume */
+.vol-pill {
+  position: relative;
+  display: block;
+  width: 66px;
+  height: 176px;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(34, 34, 38, 0.92);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+}
+
+.vol-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  background: #e6e6e8;
+}
+
+/* white blended by difference reads dark on the light fill and light on the dark */
+.vol-icon,
+.vol-percent {
+  position: absolute;
+  left: 0;
+  right: 0;
+  mix-blend-mode: difference;
+  color: #fff;
+  pointer-events: none;
+}
+
+.vol-icon {
+  top: 14px;
+  margin: 0 auto;
+  width: 20px;
+  height: 20px;
+  fill: #fff;
+}
+
+.vol-icon .arc {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+}
+
+.vol-percent {
+  bottom: 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.vol-percent::after {
+  content: "%";
+}
+
+/* the real control: invisible, over the whole pill, so a drag anywhere sets the level */
+#volume-input {
+  -webkit-appearance: none;
+  appearance: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+#volume-input::-webkit-slider-runnable-track {
+  width: 100%;
+  background: transparent;
+}
+
+#volume-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1px;
+  height: 1px;
+}
+
+body:not(.clickable) #volume {
+  display: none;
+}
+
+/* ---- layout editor ---- */
+
+/* the placement uses the separate translate and scale properties, so it adds to the
+   transforms the parts already have (the tilt on the queue, the 3D of the fan) */
+[data-layout] {
+  translate: var(--lx, 0px) var(--ly, 0px);
+  scale: var(--ls, 1);
+}
+
+body.editing [data-layout] {
+  outline: 2px dashed rgba(255, 255, 255, 0.65);
+  outline-offset: 6px;
+  cursor: move;
+  user-select: none;
+}
+
+body.editing [data-layout].picked {
+  outline-color: rgb(var(--hot));
+  outline-style: solid;
+}
+
+/* while editing, a part is one block to grab: nothing inside it reacts */
+body.editing [data-layout] * {
+  pointer-events: none !important;
+}
+
+body.editing #dots {
+  padding: 12px 18px;
+}
+
+body.editing #panel,
+body.editing #search,
+body.editing #rename {
+  display: none !important;
+}
+
+#layout-bar {
+  position: fixed;
+  z-index: 20;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 8px 18px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(24, 24, 28, 0.9);
+  backdrop-filter: blur(30px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  font-size: 12.5px;
+}
+
+#layout-hint {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+#layout-name {
+  min-width: 150px;
+  font-weight: 700;
+  color: rgb(var(--hot));
+}
+
+#layout-bar button {
+  height: 30px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+#layout-bar button:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+#layout-done {
+  background: rgba(var(--glow), 0.5) !important;
+}
+
+/* ---- player bar: switched-off parts, and the upright bar ---- */
+
+body.bar-hide-previous #btn-previous,
+body.bar-hide-toggle #btn-toggle,
+body.bar-hide-next #btn-next,
+body.bar-hide-cover #bar-cover,
+body.bar-hide-info #bar .meta,
+body.bar-hide-time #bar-time,
+body.bar-hide-like #btn-like,
+body.bar-hide-shuffle #btn-shuffle,
+body.bar-hide-repeat #btn-repeat,
+body.bar-hide-volume #volume,
+body.bar-hide-search #btn-search,
+body.bar-hide-lyrics #btn-lyrics {
+  display: none !important;
+}
+
+#panel .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+#panel .chip {
+  display: inline-flex;
+  cursor: pointer;
+}
+
+#panel .chip input {
+  display: none;
+}
+
+#panel .chip span {
+  padding: 5px 11px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  text-decoration: line-through;
+}
+
+#panel .chip input:checked + span {
+  background: rgba(var(--glow), 0.3);
+  color: #fff;
+  text-decoration: none;
+}
+
+body.bar-vertical #bar {
+  position: absolute;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+  width: 58px;
+  height: auto;
+  max-height: calc(100% - var(--taskbar) - 40px);
+  padding: 16px 0;
+  gap: 5px;
+  border-radius: 30px;
+}
+
+body.bar-vertical #bar .meta,
+body.bar-vertical #bar-time {
+  display: none !important;
+}
+
+body.bar-vertical #bar .dot {
+  margin: 0 0 4px;
+}
+
+body.bar-vertical #bar-cover {
+  margin: 4px 0;
+}
+
+/* pop-ups and labels open to the left of an upright bar, not above it */
+body.bar-vertical .vol-pop {
+  left: auto;
+  right: 100%;
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 12px 0 0;
+}
+
+body.bar-vertical .icon[data-tip]::after {
+  left: auto;
+  right: calc(100% + 12px);
+  bottom: auto;
+  top: 50%;
+  transform: translate(4px, -50%);
+}
+
+body.bar-vertical.clickable .icon[data-tip]:hover::after {
+  transform: translate(0, -50%);
+}
+
+/* beside an upright bar the settings panel opens to its left, level with it */
+body.bar-vertical #panel {
+  left: auto;
+  right: 100px;
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ---- the song and seek bar that goes with the upright player bar ---- */
+
+#nowbar {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(520px, calc(100% - 48px));
+  height: 60px;
+  padding: 0 20px 0 12px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(24, 24, 28, 0.58);
+  backdrop-filter: blur(40px) saturate(1.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+}
+
+#np-cover {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.1);
+  flex: none;
+}
+
+.np-meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+#np-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 17px;
+}
+
+#np-subtitle {
+  font-size: 11.5px;
+  line-height: 15px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+#np-title,
+#np-subtitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.np-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 1px;
+}
+
+#np-time {
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.55);
+  flex: none;
+}
+
+/* the seek line: a taller strip than the line, so it is easy to grab and drag */
+.np-track {
+  position: relative;
+  flex: 1;
+  height: 16px;
+  touch-action: none;
+}
+
+.np-track::before,
+#np-progress {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  height: 2px;
+  border-radius: 99px;
+}
+
+.np-track::before {
+  right: 0;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+#np-progress {
+  width: 0;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+#np-progress::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 99px;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+body.clickable .np-track {
+  cursor: pointer;
+}
+
+body.clickable .np-track:hover::before,
+body.clickable .np-track:hover #np-progress,
+.np-track.scrubbing::before,
+.np-track.scrubbing #np-progress {
+  top: 6px;
+  height: 4px;
+}
+
+body.clickable .np-track:hover #np-progress::after,
+.np-track.scrubbing #np-progress::after {
+  opacity: 1;
+}
+
+/* ---- fading between the normal view and lyric mode ---- */
+
+#scene {
+  transition:
+    opacity 0.28s ease,
+    scale 0.28s ease;
+}
+
+#scene.swap {
+  opacity: 0;
+  scale: 0.985;
+}
+
+/* ---- music video background ---- */
+
+#backdrop-clip {
+  inset: auto;
+  left: 50%;
+  top: 50%;
+  /* the whole screen, nothing cropped: the player fits the video inside it */
+  width: 100vw;
+  height: 100vh;
+  border: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+#backdrop-clip.on {
+  opacity: 1;
+}
+
+/* ---- the vault of saved backgrounds ---- */
+
+#vault {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+#vault:empty,
+#vault:empty + .note {
+  display: none;
+}
+
+#vault .tile {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+}
+
+#vault .tile.current {
+  outline-color: rgb(var(--hot));
+}
+
+#vault .tile img,
+#vault .tile video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+#vault .tile .kind {
+  position: absolute;
+  left: 4px;
+  bottom: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #fff;
+  text-shadow: 0 1px 4px #000;
+}
+
+#vault .tile .forget {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+#vault .tile:hover .forget {
+  opacity: 1;
+}
+
+/* the music video leaves quickly (before the paused player's labels appear) and
+   comes back slowly */
+#backdrop-clip {
+  transition: opacity 0.22s ease;
+}
+
+#backdrop-clip.on {
+  transition: opacity 0.9s ease;
+}
+
+
+/* ---- equalizer ---- */
+
+/* the equalizer is a widget of its own: wide, presets left and the bands in a row on the right */
+#eq {
+  position: absolute;
+  z-index: 3;
+  right: 28px;
+  top: 28px;
+  width: 780px;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-template-areas:
+    "head bands"
+    "tabs bands"
+    "body bands";
+  grid-template-rows: auto auto 1fr;
+  gap: 12px 22px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(24, 24, 28, 0.62);
+  backdrop-filter: blur(40px) saturate(1.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+#eq header {
+  grid-area: head;
+}
+
+#eq-tabs {
+  grid-area: tabs;
+}
+
+#eq-body {
+  grid-area: body;
+}
+
+#eq-bands {
+  grid-area: bands;
+  align-self: center;
+}
+
+#eq header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eq-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+#eq strong {
+  font-size: 15px;
+}
+
+#eq small {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.eq-switch {
+  position: relative;
+  flex: none;
+  width: 46px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.eq-switch input {
+  display: none;
+}
+
+.eq-switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.18);
+  transition: background-color 0.15s;
+}
+
+.eq-switch span::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 99px;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.eq-switch input:checked + span {
+  background: rgb(var(--hot));
+}
+
+.eq-switch input:checked + span::after {
+  transform: translateX(20px);
+}
+
+#eq-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#eq-tabs button {
+  flex: 1;
+  height: 28px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#eq-tabs button.on {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+#eq-body {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  min-height: 96px;
+  align-content: start;
+}
+
+#eq-body button.preset {
+  height: 32px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+#eq-body button.preset:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+#eq-body button.preset.on {
+  background: rgba(255, 255, 255, 0.9);
+  color: #111;
+}
+
+#eq-body .mine {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#eq-body .save-row {
+  display: flex;
+  gap: 6px;
+}
+
+#eq-body .save-row input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  outline: none;
+  user-select: text;
+}
+
+#eq-body .save-row button {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: rgba(var(--glow), 0.4);
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#eq-body .mine-item {
+  display: flex;
+  gap: 4px;
+}
+
+#eq-body .mine-item .preset {
+  flex: 1;
+  text-align: left;
+}
+
+#eq-body .mine-item .del {
+  width: 32px;
+  border: 0;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #ff7b7b;
+  cursor: pointer;
+}
+
+#eq-body .note {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#eq-bands {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  opacity: 0.45;
+  transition: opacity 0.15s;
+}
+
+#eq.on #eq-bands {
+  opacity: 1;
+}
+
+.eq-band {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.eq-band .db {
+  font-weight: 700;
+  color: #fff;
+}
+
+.eq-band input {
+  -webkit-appearance: none;
+  appearance: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 22px;
+  height: 150px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.eq-band input::-webkit-slider-runnable-track {
+  width: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.eq-band input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
