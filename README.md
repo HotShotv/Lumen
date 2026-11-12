@@ -156,3 +156,10 @@ Settings, history and a small log live in `%APPDATA%\lumen`.
 ## Licence
 
 MIT. See `LICENSE`.
+
+## Contributors
+
+- [HotShotv](https://github.com/HotShotv) — the app
+- Claude — engine abstraction, protocol docs, packaging
+
+See `CONTRIBUTORS.md`.
